@@ -1,18 +1,24 @@
-"use strict"
+"use strict";
 
 var gulp = require('gulp');
 var connect = require('gulp-connect');//run a local dev server
 var open = require('gulp-open');//Open an URL in browser
 var browserify = require('browserify'); //Bundle JS
 var reactify = require('reactify');//Transform React JSX to JS
-var source = require('vinyl-source-stream');//Use converntional text streams with gulp.
+var source = require('vinyl-source-stream');//Use conventional text streams with gulp.
+var concat = require('gulp-concat'); //concatenates files
+var lint = require('gulp-eslint');//will lint our JS file including JSX
 
 var config = {
-    port: 9005,
+    port: 9008,
     devBaseUrl: 'http://localhost',
     paths: {
         html: './src/*.html',
         js: './src/**/*.js',
+        css: [
+          'node_modules/bootstrap/dist/css/bootstrap.min.css',
+          'node_modules/bootstrap/dist/css/bootstrap-theme.min.css'
+        ],
         dist: './dist',
         mainJs: './src/main.js'
     }
@@ -26,12 +32,14 @@ gulp.task('connect', function() {
         base: config.devBaseUrl,
         livereload: true
     });
+
+
 });
 
 //gulp.src takes an array of source paths. Open then opens this path
-gulp.task('open', function() {
+gulp.task('open', ['connect'], function() {
     gulp.src('dist/index.html')
-        .pipe(open({ url: config.devBaseUrl + ':' + config.port + '/'}));
+        .pipe(open({ uri: config.devBaseUrl + ':' + config.port + '/'}));
 });
 
 //get any html files and put them in the dist dir and reload the dev server.
@@ -51,10 +59,22 @@ gulp.task('js', function() {
             .pipe(connect.reload());//as we change any JS we want to know we are seeing the lastest version
 });
 
+gulp.task('css', function() {
+  gulp.src(config.paths.css)
+    .pipe(concat('bundle.css'))
+    .pipe(gulp.dest(config.paths.dist + '/css'));
+});
+
+gulp.task('lint', function() {
+    return gulp.src(config.paths.js)
+        .pipe(lint({config: 'eslint.config.json'}))
+        .pipe(lint.format());
+});
+
 //watches the html files and and runs the html task if anything changes. 
 gulp.task('watch', function() {
     gulp.watch(config.paths.html, ['html']);
-    gulp.watch(config.paths.js, ['js']);
+    gulp.watch(config.paths.js, ['js', 'lint']);
 });
 
-gulp.task('default', ['html', 'js', 'open', 'watch'])
+gulp.task('default', ['html', 'js', 'css', 'lint', 'open', 'watch']);
