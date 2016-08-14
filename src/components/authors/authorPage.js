@@ -4,6 +4,7 @@ var React = require('react');
 var AuthorApi = require('../../api/authorApi');
 
 var Authors = React.createClass({
+	//getting the author data from outside react and bringing it in.
 	getInitialState: function() {
 		return {
 			authors: []
