@@ -2,7 +2,9 @@
 $ = jQuery = require('jquery');//2 ways to set jquery with $ and var jQuery
 var React = require('react');
 var Home = require('./components/homePage');
+var Authors = require('./components/authors/authorPage');
 var About = require('./components/about/aboutPage');
+var Header = require('./components/common/header');
 
 //an iffe to allow use strict to be used and pass the linter.
 //iffe is an immiately invoked function expression
@@ -14,10 +16,12 @@ var About = require('./components/about/aboutPage');
 			
 			switch(this.props.route) {
 				case 'about': Child = About; break;
+				case 'authors': Child = Authors; break;
 				default: Child = Home;
 			}
 			return (// will look at the route and either load the home or about component
 				<div>
+					<Header/>
 					<Child/>
 				</div>
 			);
